@@ -29,6 +29,10 @@ y(1) = pos(2);
 %-------------------------------------------------------------------------------
 % Euler's method!:
 %-------------------------------------------------------------------------------
+f = figure('color','w');
+hold('on')
+xlabel('Distance (m)')
+ylabel('Height (m)')
 n = 1; % Index
 while pos(2) >= 0
     % Compute one step of Euler's method:
@@ -43,6 +47,10 @@ while pos(2) >= 0
     % Store position for plotting:
     x(n) = pos(1);
     y(n) = pos(2);
+
+    plot(Ls*x(n-1:n),Ls*y(n-1:n),'o-k')
+    drawnow();
+    pause(0.01)
 end
 
 %-------------------------------------------------------------------------------
@@ -61,13 +69,8 @@ an_range_m = speed_m^2*sin(2*angle)/G;
 %-------------------------------------------------------------------------------
 % Plot the trajectory (as dimensional values):
 %-------------------------------------------------------------------------------
-f = figure('color','w');
-hold('on')
-plot(Ls*x,Ls*y,'o-k')
 plot(range_m,0,'ok','MarkerFaceColor','r')
 plot(an_range_m,0,'ok','MarkerFaceColor','g')
-xlabel('Distance (m)')
-ylabel('Height (m)')
 % Force minimum vertical axis limit to zero:
 ax = gca();
 ax.YLim(1) = 0; %
