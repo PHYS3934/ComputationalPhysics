@@ -1,17 +1,21 @@
-% diffusion_ftcs.m
+function diffusion_ftcs(tau,h)
 % Solve the 1-D diffusion equation for an initial spike profile
 % with Dirichlet conditions using FTCS, in a matrix formulation
 
 % Clear memory and show only a few digits
-clear('all');
-format('short');
+% clear('all');
+% format('short');
 
 % Thermal conductivity
 kappa = 1;
 
 % Time step and spatial step
-tau = 4e-4;
-h = 0.02;
+if nargin < 1
+    tau = 1e-4;
+end
+if nargin < 2
+    h = 0.02;
+end
 
 % Number of time steps
 numSteps = 50;
@@ -52,8 +56,7 @@ temp_xt(:,1) = temp;
 
 %-------------------------------------------------------------------------------
 % Plot initial condition and set up for animation
-f = figure(1);
-f.Color = 'w';
+f = figure('color','w');
 hold('on')
 niceRed = [0.84,0.09,0.11];
 niceOrange = [0.99,0.68,0.38];
@@ -99,8 +102,11 @@ end
 %-------------------------------------------------------------------------------
 % Visualization of temperature versus position and time.
 % Matlab uses a surfc(x(i),y(j),z(j,i)) convention, hence the transpose.
-figure(2);
-surfc(x,time,temp_xt');
-shading('flat');
-xlabel('Position'); ylabel('Time'); zlabel('Temperature');
-colormap('hot')
+showSurfacePlot = false;
+if showSurfacePlot
+    figure(2);
+    surfc(x,time,temp_xt');
+    shading('flat');
+    xlabel('Position'); ylabel('Time'); zlabel('Temperature');
+    colormap('hot')
+end

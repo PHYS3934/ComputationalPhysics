@@ -1,17 +1,19 @@
-% diffusion_fimp.m
+function diffusion_fimp(fac)
 % Solve the 1-D diffusion equation using the fully implicit scheme
 % with Dirichlet BCs
 
-% Clear memory
-clear('all');
+% Defaults:
+if nargin < 1
+    fac = 20; % For FTCS, this must be <= 1/2 for stability
+end
 
-% Parameters
+% Fixed parameters
 kappa = 1;           % Thermal conductivity
 h = 0.01;            % Spatial step
-fac = 20;            % For FTCS, this must be <= 1/2 for stability
 numSteps = 200;      % Number of time steps
 tau = fac*h^2/kappa; % Time step
 snapshotPeriod = 20; % Take regular snapshots (set to zero for none)
+showHeatmap = false; % Show the heatmap plot at the end.
 
 % Display the FTCS stability factor
 fprintf('FTCS stability factor: %g (FTCS stable if <1/2)\n',fac);
@@ -46,8 +48,7 @@ time = tau*(0:numSteps);
 
 %-------------------------------------------------------------------------------
 % Plot initial condition and set up for animation
-f = figure(1);
-f.Color = 'w';
+f = figure('color','w');
 hold('on')
 niceRed = [0.84,0.09,0.11];
 niceOrange = [0.99,0.68,0.38];
@@ -89,11 +90,15 @@ end
 
 %-------------------------------------------------------------------------------
 % Visualize temperature versus position and time as a heatmap
-f2 = figure(2);
-f2.Color = 'w';
-colormap(hot)
-imagesc(x,time,flipud(temp_xt'));
-xlabel('Position');
-ylabel('Time');
-cB = colorbar();
-cB.Label.String = 'Temperature';
+if showHeatmap
+    f2 = figure(2);
+    f2.Color = 'w';
+    colormap(hot)
+    imagesc(x,time,flipud(temp_xt'));
+    xlabel('Position');
+    ylabel('Time');
+    cB = colorbar();
+    cB.Label.String = 'Temperature';
+end
+
+end

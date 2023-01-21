@@ -1,12 +1,16 @@
-% kepler_verlet.m
+function kepler_verlet_demo(tau,T)
 % Motion under a central force, using the Verlet method
-
-% Clear memory and only show a few digits
-clear('all');
-format('short');
+%-------------------------------------------------------------------------------
 
 % Time step (non-dim.)
-tau = 0.0005;
+if nargin < 1
+    tau = 0.05;
+end
+
+% Total integration time
+if nargin < 2
+    T = 4*pi;
+end
 
 % Initial position (non-dim.) - this should be fixed
 pos = [1 0];
@@ -14,13 +18,10 @@ pos = [1 0];
 % Initial velocity (non-dim.) - vary the y-component
 vel = [0 1];
 
-% Total integration time (non-dim)
-T = 4*pi;
-
 % Number of integration steps
 numSteps = ceil(T/tau);
 
-% Plot only 100 frames in total
+% Plot only a subset of frames in total
 numFrames = 100;
 % Plot every 'skip' iterations:
 skip = ceil(numSteps/numFrames);
@@ -42,20 +43,46 @@ r = norm(pos);
 accel = -pos/r^3;
 energy(1) = 0.5*speed^2 - 1/r;
 
+
+%-------------------------------------------------------------------------------
+% Set up figure:
+niceRed = [0.84,0.09,0.11];
+niceOrange = [0.99,0.68,0.38];
+niceBlue = [0.17,0.51,0.73];
+figure('color','w');
+subplot(1,2,1)
+plot(xan,yan,'color',niceBlue)
+hold('on')
+plot(0,0,'o','color',niceBlue)
+xlabel('x'); ylabel('y');
+subplot(1,2,2)
+hold('on')
+xlabel('Time (non-dim.)');
+ylabel('Total energy (non-dim.)');
+
 %-------------------------------------------------------------------------------
 % Verlet method integration
 %-------------------------------------------------------------------------------
-figure(1);
-xlabel('x'); ylabel('y');
 for n = 1:numSteps
 
     % Plot numerical and analytic solution
-    if rem(n,skip)==0
-        plot(x(1:n),y(1:n),'g-',x(n),y(n),'ko',xan,yan,'b',0,0,'ro')
+    if rem(n,skip)==0 && n > 1
+        subplot(1,2,1)
+        plot(x(n-1:n),y(n-1:n),'-','color',niceRed);
+        plot(x(n),y(n),'.','color',niceRed)
         title(sprintf('Time: %f',time(n)));
         axis('equal'); % Preserve aspect ratio
+        subplot(1,2,2)
+        plot(time(n),energy(n),'.k');
         drawnow(); % Draw immediately
+        % pause(0.01)
     end
+    %
+    %     plot(x(1:n),y(1:n),'g-',x(n),y(n),'ko',xan,yan,'b',0,0,'ro')
+    %     title(sprintf('Time: %f',time(n)));
+    %     axis('equal'); % Preserve aspect ratio
+    %     drawnow(); % Draw immediately
+    % end
 
     % Take one step of the Verlet Method to update position
     if n==1
@@ -97,9 +124,9 @@ end
 
 %-------------------------------------------------------------------------------
 % Plot energy versus time
-figure(2);
-hold('on')
-plot(time,energy);
-plot([min(time),max(time)],ones(2,1)*energy(1),'--k')
-xlabel('Time (non-dim.)');
-ylabel('Total energy (non-dim.)');
+% figure(2);
+% hold('on')
+% plot(time,energy);
+% plot([min(time),max(time)],ones(2,1)*energy(1),'--k')
+% xlabel('Time (non-dim.)');
+% ylabel('Total energy (non-dim.)');

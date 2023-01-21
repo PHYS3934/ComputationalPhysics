@@ -1,32 +1,44 @@
-% advection.m
-% Solve the advection equation with periodic BCs
+function advection(whatMethod,tau)
+% advection Solve the advection equation with periodic BCs
 
-% Clear memory and show only a few digits
-clear('all'); format('short');
-
-% Set the numerical method to use (comment one out):
-whatMethod = 'ftcs';
-% whatMethod = 'lax';
+%% Set defaults:
+% Set default method:
+if nargin < 1
+    whatMethod = 'ftcs';
+    % whatMethod = 'lax';
+end
 fprintf(1,'Using the %s method!\n',whatMethod);
+% Set default time step, tau:
+if nargin < 2
+    tau = 0.01;
+end
 
-% Propagation speed
+%--------------------------------------------------------------------------
+%% Set parameters:
+%--------------------------------------------------------------------------
+% Propagation speed:
 c = 1;
 
-% Spatial and time steps
+% Spatial step:
 h = 0.01;
-tau = 0.01;
+
+% Lag time between plot updates
+frameUpdateLag = 0.05; % (s)
+
+%--------------------------------------------------------------------------
+%% Initialization
+%--------------------------------------------------------------------------
 
 % Number of steps such that the pulse should propagate through
 % the periodic domain once
 numSteps = ceil((1 + h)/(c*tau));
-frameUpdateLag = 0.1; % lag time between updates
 
 % Vector of x values
 x = 0:h:1;
 L = length(x);
 
 %-------------------------------------------------------------------------------
-% Construct the update matrix, M
+%% Construct the update matrix, M
 %-------------------------------------------------------------------------------
 g = c*tau/h;
 switch whatMethod
@@ -34,6 +46,8 @@ case 'ftcs'
     M = construct_update_matrix(L,'ftcs_advection',g);
 case 'lax'
     M = construct_update_matrix(L,'lax_advection',g);
+otherwise
+    error('Unknown method, ''%s''',whatMethod)
 end
 
 % Calculate the spectral radius of M
@@ -41,18 +55,18 @@ rho = max(abs(eig(M)));
 disp(['Spectral radius: ',num2str(rho)]);
 
 %-------------------------------------------------------------------------------
-% Set Initial conditions (a Gaussian pulse at x = 0.5)
+%% Set Initial conditions (a Gaussian pulse at x = 0.5)
 %-------------------------------------------------------------------------------
 sig = 0.1;
 amp = exp(-0.5*(x-0.5).^2/sig^2)';
 amp0 = amp; % store initial profile
 
-% -------------------------------------------------------------------------------
-% Set up plot for animation
+%-------------------------------------------------------------------------------
+%% Set up plot for animation
 %-------------------------------------------------------------------------------
 % Plot the amplitude versus position, the initial amplitude
 % profile, and the analytic values, with annotations
-f = figure(1);
+f = figure;
 f.Color = 'w';
 hold('on')
 niceRed = [0.84,0.09,0.11];
@@ -91,7 +105,6 @@ for n = 1:numSteps
 
     % Record a(x,t) matrix for visualisation
     amp_xt(:,n+1) = amp;
-
 end
 
 %-------------------------------------------------------------------------------
@@ -105,4 +118,6 @@ figure(2);
 colormap(summer);
 surfc(x,time,amp_xt');
 shading interp;
-xlabel('Position'); ylabel('Time'); zlabel('Amplitude');
+xlabel('Position');
+ylabel('Time');
+zlabel('Amplitude');

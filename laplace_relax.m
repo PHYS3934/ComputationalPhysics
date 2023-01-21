@@ -1,33 +1,44 @@
-% laplace_relax.m
+function numIters = laplace_relax(whatMethod,h,omega)
 %-------------------------------------------------------------------------------
 % Solve the Laplace equation with Dirichlet BCs using relaxation
 % (Jacobi or Gauss-Seidel)
 %-------------------------------------------------------------------------------
 % Clear memory and show only a few digits
-clear('all');
-format('short');
+% clear('all');
+% format('short');
 
 %-------------------------------------------------------------------------------
 % Select which method to use
 %-------------------------------------------------------------------------------
-whatMethod = 'Jacobi';
+if nargin < 1
+    whatMethod = 'Jacobi';
+end
 % whatMethod = 'GaussSeidel';
 % whatMethod = 'SOR';
 fprintf(1,'Using %s Relaxation\n',whatMethod);
 
 %-------------------------------------------------------------------------------
+% Set spatial step:
+%-------------------------------------------------------------------------------
+if nargin < 2
+    h = 0.05; % Default spatial step
+end
+
+%-------------------------------------------------------------------------------
 % Set parameters
 %-------------------------------------------------------------------------------
-h = 0.05;         % Spatial step
 maxIterations = 1e+4;  % Maximum number of iterations
-minDiff = 1e-6;  % Convergence criterion
-frameSkip = 1;  % Only plot every frameSkip iterations
-frameUpdateLag = 0; % Slow down animation
+minDiff = 1e-6;        % Convergence criterion
+frameSkip = 5;         % Only plot every frameSkip iterations
+frameUpdateLag = 0.1;    % Slow down animation
+alsoPlotField = false;
 
 % Set up vectors of discretized x and y values
 x = 0:h:1;
 y = x;
 L = length(x);
+
+fprintf(1,'L = %u\n',L);
 
 %-------------------------------------------------------------------------------
 % Define initial condition (phi)
@@ -39,13 +50,12 @@ phi = phi_new;
 %-------------------------------------------------------------------------------
 % Set over-relaxation factor, omega for SOR
 if strcmp(whatMethod,'SOR')
-    %omega=1.5;
-    %omega=1.2;
-    %omega=1;
-    % Analytic result for optimal value
     omega_opt = 2/(1+sin(pi/L));
+    if nargin < 3
+        % Analytic result for optimal value
+        omega = omega_opt;
+    end
     fprintf(1,'Optimal omega: %g\n',omega_opt);
-    omega = omega_opt;
 end
 
 %-------------------------------------------------------------------------------
@@ -129,27 +139,34 @@ for iter = 1:maxIterations
 end
 
 % Display number of iterations
-fprintf(1,'%u Iterations\n',iter);
+numIters = iter;
+fprintf(1,'%u iterations to convergence\n',numIters);
 
 %-------------------------------------------------------------------------------
-% Determine the electric field by differencing. Note Matlab's
-% identification of the first index in a matrix with
-% y, wherever a functional dependence z = z(x,y) is implied.
-[Ey, Ex] = gradient(phi,h);
-Ex = -Ex;
-Ey = -Ey;
-
+% Second 2d color plot with electric field vectors annotated
 %-------------------------------------------------------------------------------
-% Also plot the electric field
-f2 = figure(2);
-f2.Color = 'w';
-hold('on');
-contourf(x,y,phi');
-scale = 10;
-quiver(x,y,Ex',Ey',scale,'w');
-xlabel('x');
-ylabel('y');
-title('Electric field {\bf E} and contours of \phi');
-axis([0 1 0 1]);
-hold('off');
-set_color_map()
+if alsoPlotField
+    % Determine the electric field by differencing. Note Matlab's
+    % identification of the first index in a matrix with
+    % y, wherever a functional dependence z = z(x,y) is implied.
+    [Ey, Ex] = gradient(phi,h);
+    Ex = -Ex;
+    Ey = -Ey;
+    
+    %---------------------------------------------------------------------------
+    % Also plot the electric field
+    f2 = figure(2);
+    f2.Color = 'w';
+    hold('on');
+    contourf(x,y,phi');
+    scale = 10;
+    quiver(x,y,Ex',Ey',scale,'w');
+    xlabel('x');
+    ylabel('y');
+    title('Electric field {\bf E} and contours of \phi');
+    axis([0 1 0 1]);
+    hold('off');
+    set_color_map()
+end
+
+end

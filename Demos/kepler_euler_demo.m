@@ -1,13 +1,15 @@
-% kepler_euler.m
+function kepler_euler_demo(tau,T)
 % Motion under a central force, using Euler's method
 %-------------------------------------------------------------------------------
-
-% Clear memory and only show a few digits
-clear('all');
-format('short');
-
 % Time step (non-dim.)
-tau = 0.05;
+if nargin < 1
+    tau = 0.05;
+end
+
+% Total integration time
+if nargin < 2
+    T = 4*pi;
+end
 
 % Initial position (non-dim.) - this should be fixed
 pos = [1 0];
@@ -15,14 +17,11 @@ pos = [1 0];
 % Initial velocity (non-dim.) - vary the y-component
 vel = [0 1];
 
-% Total integration time
-T = 4*pi;
-
 % Number of integration steps
 numSteps = ceil(T/tau);
 
-% Plot only 100 frames in total
-numFrames = 100;
+% Plot only a subset of frames
+numFrames = 50; % numSteps, 100
 % Plot every 'skip' iterations:
 skip = ceil(numSteps/numFrames);
 
@@ -45,18 +44,37 @@ accel = -pos/r^3;
 energy(1) = 0.5*speed^2 - 1/r;
 
 %-------------------------------------------------------------------------------
+% Set up figure:
+niceRed = [0.84,0.09,0.11];
+niceOrange = [0.99,0.68,0.38];
+niceBlue = [0.17,0.51,0.73];
+figure('color','w');
+subplot(1,2,1)
+plot(xan,yan,'color',niceBlue)
+hold('on')
+plot(0,0,'o','color',niceBlue)
+xlabel('x'); ylabel('y');
+subplot(1,2,2)
+hold('on')
+xlabel('Time (non-dim.)');
+ylabel('Total energy (non-dim.)');
+
+%-------------------------------------------------------------------------------
 % Euler's method integration
 %-------------------------------------------------------------------------------
-figure(1);
-xlabel('x'); ylabel('y');
 for n = 1:numSteps
 
     % Plot numerical and analytic solution
-    if rem(n,skip)==0
-        plot(x(1:n),y(1:n),'g-',pos(1),pos(2),'ko',xan,yan,'b',0,0,'ro')
+    if n > 1 && rem(n,skip)==0
+        subplot(1,2,1)
+        plot(x(n-1:n),y(n-1:n),'-','color',niceRed);
+        plot(x(n),y(n),'.','color',niceRed)
         title(sprintf('Time: %f',time(n)));
         axis('equal'); % Preserve aspect ratio
+        subplot(1,2,2)
+        plot(time(n),energy(n),'.k');
         drawnow(); % Draw immediately
+        % pause(0.01)
     end
 
     % Take one step of Euler's method:
@@ -73,11 +91,3 @@ for n = 1:numSteps
     y(n+1) = pos(2);
     energy(n+1) = 0.5*speed^2 - 1/r;
 end
-
-% Plot energy versus time
-figure(2);
-hold('on')
-plot(time,energy);
-plot([min(time),max(time)],ones(2,1)*energy(1),'--k')
-xlabel('Time (non-dim.)');
-ylabel('Total energy (non-dim.)');

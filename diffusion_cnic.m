@@ -1,28 +1,32 @@
-% diffusion_cnic.m
+function diffusion_cnic(tau,h)
 % Solve the diffusion equation using Crank-Nicolson
 %-------------------------------------------------------------------------------
 
-% Clear memory
-clear('all');
+if nargin < 1
+    % time step
+    tau = 8e-4;
+end
+if nargin < 2
+    % spatial step
+    h = 0.02;
+end
 
 % Thermal conductivity
 kappa = 1;
 
-% Time step and spatial step
-tau = 2e-3;
-h = 0.02;
-
 % Number of time steps
-numSteps = 50;
-frameUpdateLag = 0.2; % pause between updates
+totalTime = 0.02;
+numSteps = ceil(totalTime/tau);
+frameUpdateLag = 0.1; % pause between updates
 zoomIn = true;
+showHeatMap = false;
 
 % Display value of FTCS stability factor
 fac = kappa*tau/h^2;
-disp(['FTCS stability factor: ',num2str(fac)]);
+disp(['FTCS stability factor (stable <= 1/2): ',num2str(fac)]);
 
 % Vector of x values
-x = 0:h:1;
+x = (0:h:1)';
 L = length(x);
 
 % Construct the matrix D associated with the second spatial derivative
@@ -49,8 +53,7 @@ temp_xt(:,1) = temp;
 
 %-------------------------------------------------------------------------------
 % Plot initial condition and set up for animation
-f = figure(1);
-f.Color = 'w';
+figure('color','w');
 hold('on')
 niceRed = [0.84,0.09,0.11];
 niceOrange = [0.99,0.68,0.38];
@@ -98,13 +101,17 @@ end
 %-------------------------------------------------------------------------------
 % Visualize temperature versus position and time. Matlab
 % uses a surfc(x(i),y(j),z(j,i)) convention, hence the transpose
-f2 = figure(2);
-f2.Color = 'w';
-ax = gca();
-colormap(hot)
-imagesc(x,time,temp_xt');
-ax.YDir = 'normal';
-xlabel('Position');
-ylabel('Time');
-cB = colorbar();
-cB.Label.String = 'Temperature';
+if showHeatMap
+    f2 = figure(2);
+    f2.Color = 'w';
+    ax = gca();
+    colormap(hot)
+    imagesc(x,time,temp_xt');
+    ax.YDir = 'normal';
+    xlabel('Position');
+    ylabel('Time');
+    cB = colorbar();
+    cB.Label.String = 'Temperature';
+end
+
+end
