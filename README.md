@@ -8,7 +8,14 @@ See the `Demos` directory for code from in-class demos.
 - `proj_euler.m`.
   - Solves the projectile motion problem using the Euler method.
 
-## Week 2: Projectile motion using the Euler method
+## Week 2: Keplerian dynamics using the Verlet method
+
+- `kepler_euler.m`
+  - Solves the Kepler problem using the Euler method.
+- `kepler_verlet.m`
+  - Solves the Kepler problem using the Verlet method.
+- `kepler_analytic.m`
+  - Solves the Kepler problem analytically.
 
 ## Week 3: A General Form of ODEs and the Simple Pendulum
 
